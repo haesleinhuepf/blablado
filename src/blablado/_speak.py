@@ -12,20 +12,25 @@ def _quiet():
     from ._machinery import _context
     _context.voice = False
 
-def _speak_out(text):
+
+def _speak_out(text, voice='nova'):
     """
     Speak out a string using Google Text To Speech
     """
-
-    from gtts import gTTS
     from pydub import AudioSegment
     from pydub.playback import play
     import os
+    from openai import OpenAI
+    client = OpenAI()
 
-    # Convert text to audio using gTTS
+    # Convert text to audio
     temp_filename = "temp_audio.mp3"
-    tts = gTTS(text=text, lang="en", )
-    tts.save(temp_filename)
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice=voice,
+        input=text
+    )
+    response.stream_to_file(temp_filename)
 
     # Load audio into pydub
     audio_segment = AudioSegment.from_mp3(temp_filename)

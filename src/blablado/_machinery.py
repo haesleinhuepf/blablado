@@ -2,9 +2,10 @@ class _context():
     tools = []
     llm = None
     agent = None
-    variables = None
-    voice = None
+    voice = True
     verbose = False
+    micropohone_index = None
+
 
 
 def do(prompt: str = None):
@@ -17,7 +18,6 @@ def do(prompt: str = None):
 
     if _context.verbose:
         print("Tools:", len(_context.tools))
-        print("Variables:", len(_context.variables.keys()))
 
     # why? https://github.com/haesleinhuepf/bia-bob/issues/13
     if not prompt.strip().endswith("?"):
@@ -31,7 +31,7 @@ def do(prompt: str = None):
         _speak_out(result)
 
 
-def init_assistant(variables, temperature=0):
+def init_assistant(temperature=0):
     if _context.verbose:
         print("Initializing assistant")
     from langchain.chat_models import ChatOpenAI
@@ -66,12 +66,9 @@ def init_assistant(variables, temperature=0):
         memory=_context.memory,
     )
 
-    # store the variables
-    _context.variables = variables
 
+init_assistant()
 
-
-init_assistant(globals())
 
 def register_tool(callable):
     """
@@ -88,4 +85,8 @@ def register_tool(callable):
     _context.tools.append(StructuredTool.from_function(callable))
 
     if _context.agent is not None:
-        init_assistant(_context.variables)
+        init_assistant()
+
+
+def set_microphone_index(index:int):
+    _context.micropohone_index = index

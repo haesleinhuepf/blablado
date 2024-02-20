@@ -1,4 +1,4 @@
-def _listen(until_bye_bye=False):
+def listen(until_bye_bye=False):
     """
     Activate the microphone and listen to the user.
     The passed command is then executed.
@@ -26,15 +26,17 @@ def _listen(until_bye_bye=False):
 def _listen_to_microphone():
     """Recognizes speech from microphone and return it as string"""
     import speech_recognition as sr
+    from ._machinery import _context
 
     # Initialize the recognizer
     recognizer = sr.Recognizer()
 
-    with sr.Microphone() as source:
+    with sr.Microphone(_context.micropohone_index) as source:
         # Reducing the noise
         recognizer.adjust_for_ambient_noise(source)
-        print("Listening...")
+        print(f"Listening (mic={_context.micropohone_index})...")
         audio = recognizer.listen(source)
+        print("Recognizing...")
 
         try:
             # Recognize the content
