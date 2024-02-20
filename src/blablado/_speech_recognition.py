@@ -11,9 +11,8 @@ def _listen(until_bye_bye=False):
         if result:
             print("You said:", result)
 
-
-            from ._machinery import bob
-            bob(result)
+            from ._machinery import do
+            do(result)
 
             if result.lower().strip() in ["bye bye", "bye-bye", "bye", "goodbye", "good bye", "good-bye", "see you later", "see you", "stop", "quit", "halt"]:
                 return

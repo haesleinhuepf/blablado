@@ -7,11 +7,7 @@ class _context():
     verbose = False
 
 
-from IPython.core.magic import register_line_cell_magic
-
-
-@register_line_cell_magic
-def bob(line: str = None, cell: str = None):
+def do(prompt: str = None):
     from IPython.display import display, Markdown
     if _context.agent is None:
         init_assistant({})
@@ -22,16 +18,6 @@ def bob(line: str = None, cell: str = None):
     if _context.verbose:
         print("Tools:", len(_context.tools))
         print("Variables:", len(_context.variables.keys()))
-
-    if line and cell:
-        prompt = line + "\n" + cell
-    elif line:
-        prompt = line
-    elif cell:
-        prompt = cell
-    else:
-        display("Please enter a question behind %bob")
-        return ""
 
     # why? https://github.com/haesleinhuepf/bia-bob/issues/13
     if not prompt.strip().endswith("?"):
@@ -55,7 +41,7 @@ def init_assistant(variables, temperature=0):
     from langchain.schema import SystemMessage
 
     if len(_context.tools) == 0:
-        from ._tools import load_image
+        from ._tools import list_tools
 
     # make the llm
     _context.llm = ChatOpenAI(temperature=temperature)
@@ -65,8 +51,6 @@ def init_assistant(variables, temperature=0):
     _context.memory = ConversationBufferMemory(memory_key=MEMORY_KEY, return_messages=True)
 
     system_message = SystemMessage(content="""
-    You never produce sample data.
-    You never print out dataframes.
     Answer the human's questions below and keep your answers short.
     """)
     agent_kwargs = {
@@ -89,7 +73,7 @@ def init_assistant(variables, temperature=0):
 
 init_assistant(globals())
 
-def add_function_tool(callable):
+def register_tool(callable):
     """
     Adds a function tool to the agent.
 

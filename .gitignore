@@ -6,7 +6,9 @@ dist/
 .idea/
 
 */.ipynb_checkpoints/*
-*/bia_bob.egg-info/*
+*/blablado.egg-info/*
 *__pycache__*
 
 *Untitled*
+
+
