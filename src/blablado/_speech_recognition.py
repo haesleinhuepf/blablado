@@ -7,7 +7,10 @@ def listen_to_microphone(microphone_index=None, timeout=None):
     """Recognizes speech from microphone and return it as string"""
     import speech_recognition as sr
 
-    microphone_name = list_microphones()[microphone_index]
+    if microphone_index is not None:
+        microphone_name = list_microphones()[microphone_index]
+    else:
+        microphone_name = "microphone"
 
     # Initialize the recognizer
     recognizer = sr.Recognizer()
