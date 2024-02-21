@@ -1,19 +1,6 @@
-def _speak():
-    """
-    Turn on voice output
-    """
-    from ._machinery import _context
-    _context.voice = True
-
-def _quiet():
-    """
-    Turn off voice output
-    """
-    from ._machinery import _context
-    _context.voice = False
 
 
-def _speak_out(text, voice='nova'):
+def speak_out(text, voice='nova'):
     """
     Speak out a string using Google Text To Speech
     """
@@ -35,7 +22,7 @@ def _speak_out(text, voice='nova'):
     # Load audio into pydub
     audio_segment = AudioSegment.from_mp3(temp_filename)
 
-    silence = AudioSegment.silent(duration=500)  # 500ms of silence
+    silence = AudioSegment.silent(duration=1000)  # a bit of silence
 
     audio_with_silence = silence + audio_segment
 

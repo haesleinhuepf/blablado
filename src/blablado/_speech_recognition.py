@@ -1,47 +1,28 @@
-def listen(until_bye_bye=False):
-    """
-    Activate the microphone and listen to the user.
-    The passed command is then executed.
+def list_microphones():
+    import speech_recognition as sr
+    return sr.Microphone.list_microphone_names()
 
-    If until_bye_bye is True, the discussion is continued until the user says "bye bye".
-    """
 
-    while True:
-        result = _listen_to_microphone()
-        if result:
-            print("You said:", result)
-
-            from ._machinery import do
-            do(result)
-
-            if result.lower().strip() in ["bye bye", "bye-bye", "bye", "goodbye", "good bye", "good-bye", "see you later", "see you", "stop", "quit", "halt"]:
-                return
-
-        else:
-            return
-
-        if not until_bye_bye:
-            return
-
-def _listen_to_microphone():
+def listen_to_microphone(microphone_index=None, timeout=None):
     """Recognizes speech from microphone and return it as string"""
     import speech_recognition as sr
-    from ._machinery import _context
+
+    microphone_name = list_microphones()[microphone_index]
 
     # Initialize the recognizer
     recognizer = sr.Recognizer()
 
-    with sr.Microphone(_context.micropohone_index) as source:
+    with sr.Microphone(microphone_index) as source:
         # Reducing the noise
         recognizer.adjust_for_ambient_noise(source)
-        print(f"Listening (mic={_context.micropohone_index})...")
-        audio = recognizer.listen(source)
-        print("Recognizing...")
+        print(f"Listening via {microphone_name} (timeout: {timeout})...")
+        audio = recognizer.listen(source, timeout=timeout, phrase_time_limit=timeout)
+        print("Processing...")
 
         try:
             # Recognize the content
             text = recognizer.recognize_google(audio)
-            return text
+
         except sr.UnknownValueError:
             print("Could not understand audio.")
             return None
@@ -49,4 +30,5 @@ def _listen_to_microphone():
             print("Error calling the API; {0}".format(e))
             return None
 
-
+        print("You said:", text)
+        return text
