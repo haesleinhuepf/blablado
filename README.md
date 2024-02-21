@@ -69,12 +69,35 @@ You can then call the assistant to listen to your voice and execute the function
 assistant.listen()
 ```
 
+## Usage: Voice output
+
+To make the voice output work as well, just activate the voice when initializing the assistant:
+
+```python
+from blablado import Assistant
+assistant = Assistant(has_voice=True)
+```
+
 ## Installation
 
-`blablado` is available on pypi and can be installed using `pip`:
+`blablado` is available on pypi and can be installed using `pip`. It is recommended to install it in a virtual environment, e.g. set up with mamba.
+
+```
+mamba create --name bla python=3.9
+```
+
+```
+mamba activate bla
+```
 
 ```
 pip install blablado
+```
+
+To make the voice-output work (optional), consider installing [ffmpeg](https://anaconda.org/conda-forge/ffmpeg) using mamba.
+
+```
+mamba install ffmpeg
 ```
 
 ## Issues

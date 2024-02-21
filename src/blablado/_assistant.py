@@ -4,9 +4,9 @@ class Assistant():
     instructions, either as string or as input from a microphone. The Assistant can then execute the given command
     by using the tools. Tools are callable functions that can be registered with the assistant.
     """
-    def __init__(self, temperature=0.01, tools=[], verbose=False):
+    def __init__(self, temperature=0.01, tools=[], verbose=False, has_voice=False):
         self._tools = tools
-        self._has_voice = True
+        self._has_voice = has_voice
         self._verbose = verbose
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
