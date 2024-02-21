@@ -1,15 +1,19 @@
+from langchain_core.messages import SystemMessage
+
+
 class Assistant():
     """
     An Assistant is an object that holds a list of tools, that can be extended, and functions for receiving
     instructions, either as string or as input from a microphone. The Assistant can then execute the given command
     by using the tools. Tools are callable functions that can be registered with the assistant.
     """
-    def __init__(self, temperature=0.01, tools=[], verbose=False, has_voice=False):
+    def __init__(self, temperature=0.01, tools=[], verbose=False, has_voice=False, model="gpt-3.5-turbo-0613"):
         self._tools = tools
         self._has_voice = has_voice
         self._verbose = verbose
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
+        self._model = "gpt-3.5-turbo-0613"
 
         if self._verbose:
             print("Initializing assistant...")
@@ -24,36 +28,56 @@ class Assistant():
         Initializes the agent/llm/memory with a given list of tools. Wheneve a tool is added, we neeed to
         reinititalize the agent.
         """
-        from langchain.chat_models import ChatOpenAI
-        from langchain.memory import ConversationBufferMemory
-        from langchain.agents import StructuredChatAgent, AgentExecutor, OpenAIFunctionsAgent, initialize_agent, \
-            AgentType
+        from langchain_openai import ChatOpenAI
+        from langchain.chains import LLMMathChain
+        from langchain.llms import OpenAI
+        from langchain.utilities import SerpAPIWrapper, SQLDatabase
+        from langchain.agents import Tool, AgentType, create_openai_functions_agent
+        from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
         from langchain.prompts import MessagesPlaceholder
-        from langchain.schema import SystemMessage
 
-        # make the llm
-        self._llm = ChatOpenAI(temperature=self._temperature)
+        from langchain.memory import ConversationBufferMemory
+        from langchain.agents import OpenAIFunctionsAgent, AgentExecutor
 
-        # set up the chat memory
-        MEMORY_KEY = "chat_history"
-        self._memory = ConversationBufferMemory(memory_key=MEMORY_KEY, return_messages=True)
+        # Assuming you have a language model and tools
+        llm = ChatOpenAI(temperature=self._temperature, model=self._model)
 
-        system_message = SystemMessage(content="""
-        Answer the human's questions below and keep your answers short.
-        Be honest. Never lie. 
-        Only say you did something, if a function/tool has been called that can actually do the task you were asked for.
-        """)
-        agent_kwargs = {
-            "system_message": system_message,
-            "extra_prompt_messages": [MessagesPlaceholder(variable_name=MEMORY_KEY)]
-        }
-        self._agent = initialize_agent(
+        # Create a custom system message
+        custom_system_message = SystemMessage(content="""
+                Answer the human's questions below and keep your answers short.
+                Be honest. Never lie. 
+                Only say you did something, if a function/tool has been called that can actually do the task you were asked for.
+                You have access to the following tools:
+                """)
+
+        # Create the agent
+        self._agent = OpenAIMultiFunctionsAgent.from_llm_and_tools(
+            llm,
             self._tools,
-            self._llm,
-            agent=AgentType.OPENAI_FUNCTIONS,
+            extra_prompt_messages=[custom_system_message],
+        )
+
+        llm = ChatOpenAI()
+
+        memory = ConversationBufferMemory(
+            llm=llm,
+            memory_key="memory",
+            return_messages=True)
+
+        prompt = OpenAIFunctionsAgent.create_prompt(
+            system_message=custom_system_message,
+            extra_prompt_messages=[MessagesPlaceholder(variable_name="memory")],
+        )
+
+        #agent = OpenAIFunctionsAgent(llm=llm, tools=self._tools, prompt=prompt)
+        agent = create_openai_functions_agent(llm=llm, tools=self._tools, prompt=prompt)
+
+        self._agent = AgentExecutor(
+            agent=agent,
+            tools=self._tools,
+            memory=memory,
             verbose=self._verbose,
-            agent_kwargs=agent_kwargs,
-            memory=self._memory,
+            return_intermediate_steps=False,
         )
 
     def list_tools(self):
@@ -107,8 +131,8 @@ The current date and time are {now}.
 {prompt}
 """
 
-
-        result = self._agent.run(input=prompt)
+        #result = self._agent.run(prompt)
+        result = self._agent.invoke({"input": prompt})['output']
 
         print(result)
         if self._has_voice:
