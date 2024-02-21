@@ -47,7 +47,6 @@ class Assistant():
                 Answer the human's questions below and keep your answers short.
                 Be honest. Never lie. 
                 Only say you did something, if a function/tool has been called that can actually do the task you were asked for.
-                You have access to the following tools:
                 """)
 
         # Create the agent
@@ -126,8 +125,10 @@ class Assistant():
 
 
         prompt = f"""
-The current date and time are {now}.
+Here are some general information, no need to mention it unless asked for it:
+* The current date and time are {now}.
 
+This is your task:
 {prompt}
 """
 
