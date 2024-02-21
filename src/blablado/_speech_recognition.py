@@ -18,9 +18,11 @@ def listen_to_microphone(microphone_index=None, timeout=None):
     with sr.Microphone(microphone_index) as source:
         # Reducing the noise
         recognizer.adjust_for_ambient_noise(source)
-        print(f"Listening via {microphone_name} (timeout: {timeout})...")
+        if microphone_name != "microphone" or timeout != 10:
+            print(f"\nListening via {microphone_name} (timeout: {timeout})...")
+        else:
+            print("\nListening...")
         audio = recognizer.listen(source, timeout=timeout, phrase_time_limit=timeout)
-        print("Processing...")
 
         try:
             # Recognize the content
