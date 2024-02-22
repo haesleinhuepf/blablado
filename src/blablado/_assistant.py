@@ -10,6 +10,7 @@ class Assistant():
     def __init__(self, temperature=0.01, tools=[], verbose=False, has_voice=False, model="gpt-3.5-turbo-0613"):
         self._tools = tools
         self._has_voice = has_voice
+        self._voice = "nova"
         self._verbose = verbose
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
@@ -20,6 +21,7 @@ class Assistant():
 
         if len(self._tools) == 0:
             self.register_tool(self.list_tools)
+            self.register_tool(self.change_voice)
 
         self._temperature = temperature
 
@@ -83,6 +85,12 @@ class Assistant():
         """Lists all available tools"""
         return "\n".join(list([t.name for t in self._tools]))
 
+    def change_voice(self, voice:str):
+        """
+        Change the voice used for speaking out. Voice must be one of "alloy", "echo", "fable", "onyx", "nova", "shimmer".
+        """
+        self._voice = voice
+
     def listen(self, until_bye_bye=False):
         """
         Activate the microphone and listen to the user.
@@ -120,8 +128,8 @@ class Assistant():
         now = datetime.now()
 
         # why? https://github.com/haesleinhuepf/bia-bob/issues/13
-        if not prompt.strip().endswith("?"):
-            prompt = prompt + "\nSummarize the answers in maximum two sentences."
+        #if not prompt.strip().endswith("?"):
+        #    prompt = prompt + "\nSummarize the answers in maximum two sentences."
 
 
         prompt = f"""
@@ -137,7 +145,7 @@ This is your task:
 
         print(result)
         if self._has_voice:
-            speak_out(result)
+            speak_out(result, voice=self._voice)
 
     def register_tool(self, func):
         """
