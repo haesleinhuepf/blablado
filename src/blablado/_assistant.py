@@ -15,6 +15,7 @@ class Assistant():
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
         self._model = "gpt-3.5-turbo-0613"
+        self._agent = None
 
         if self._verbose:
             print("Initializing assistant...")
