@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage
+
 
 
 class Assistant():
@@ -35,7 +35,7 @@ class Assistant():
         from langchain.agents import create_openai_functions_agent
         from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
         from langchain.prompts import MessagesPlaceholder
-
+        from langchain_core.messages import SystemMessage
         from langchain.memory import ConversationBufferMemory
         from langchain.agents import OpenAIFunctionsAgent, AgentExecutor
 
