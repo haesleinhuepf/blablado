@@ -31,10 +31,7 @@ class Assistant():
         reinititalize the agent.
         """
         from langchain_openai import ChatOpenAI
-        from langchain.chains import LLMMathChain
-        from langchain.llms import OpenAI
-        from langchain.utilities import SerpAPIWrapper, SQLDatabase
-        from langchain.agents import Tool, AgentType, create_openai_functions_agent
+        from langchain.agents import create_openai_functions_agent
         from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
         from langchain.prompts import MessagesPlaceholder
 
@@ -70,7 +67,6 @@ class Assistant():
             extra_prompt_messages=[MessagesPlaceholder(variable_name="memory")],
         )
 
-        #agent = OpenAIFunctionsAgent(llm=llm, tools=self._tools, prompt=prompt)
         agent = create_openai_functions_agent(llm=llm, tools=self._tools, prompt=prompt)
 
         self._agent = AgentExecutor(
@@ -127,11 +123,6 @@ class Assistant():
 
         now = datetime.now()
 
-        # why? https://github.com/haesleinhuepf/bia-bob/issues/13
-        #if not prompt.strip().endswith("?"):
-        #    prompt = prompt + "\nSummarize the answers in maximum two sentences."
-
-
         prompt = f"""
 Here are some general information, no need to mention it unless asked for it:
 * The current date and time are {now}.
@@ -140,7 +131,6 @@ This is your task:
 {prompt}
 """
 
-        #result = self._agent.run(prompt)
         result = self._agent.invoke({"input": prompt})['output']
 
         print(result)
