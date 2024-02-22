@@ -28,7 +28,7 @@ class Assistant():
 
     def _initialize_agent(self):
         """
-        Initializes the agent/llm/memory with a given list of tools. Wheneve a tool is added, we neeed to
+        Initializes the agent/llm/memory with a given list of tools. Whenever a tool is added, we neeed to
         reinititalize the agent.
         """
         from langchain_openai import ChatOpenAI
@@ -146,7 +146,7 @@ This is your task:
         It must have a docstring that describes the function, ideally explaining what the function is useful for using
         terms from the target audience.
 
-        After calling this function, the agent is re-initialized.
+        After calling this function, the agent must be re-initialized.
         """
         from langchain.tools import StructuredTool
 
