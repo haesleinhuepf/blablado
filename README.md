@@ -39,6 +39,17 @@ Output:
 I have successfully booked room A03.21 for Robert from 3 to 4 pm tomorrow.
 ```
 
+## Usage: Other models
+
+You can also use the [blablador](https://helmholtz-blablador.fz-juelich.de/) endpoint by initializing the assistant 
+using a model which is installed there. In order to make this work, you need to have your Blablador API TOKEN stored in
+the environment variable `BLABLADOR_API_KEY`.
+
+```python
+from blablado import Assistant
+assistant = Assistant(model="Mistral-7B-Instruct-v0.2")
+```
+
 ## Usage: Microphone
 
 You can also use it via microphone ([see example notebook](https://github.com/haesleinhuepf/blablado/blob/main/demo/audio_demo.ipynb)). Therfore, it is recommended to print out the list of available microphones like this:

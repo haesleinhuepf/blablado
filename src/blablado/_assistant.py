@@ -14,7 +14,7 @@ class Assistant():
         self._verbose = verbose
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
-        self._model = "gpt-3.5-turbo-0613"
+        self._model = model
         self._agent = None
 
         if self._verbose:
@@ -38,9 +38,15 @@ class Assistant():
         from langchain_core.messages import SystemMessage
         from langchain.memory import ConversationBufferMemory
         from langchain.agents import OpenAIFunctionsAgent, AgentExecutor
+        import os
 
         # Assuming you have a language model and tools
-        llm = ChatOpenAI(temperature=self._temperature, model=self._model)
+        if 'gpt' not in self._model:
+            llm = ChatOpenAI(openai_api_key=os.environ.get('BLABLADOR_API_KEY'),
+                             openai_api_base='https://helmholtz-blablador.fz-juelich.de:8000/v1',
+                             model=self._model)
+        else:
+            llm = ChatOpenAI(temperature=self._temperature, model=self._model)
 
         # Create a custom system message
         custom_system_message = SystemMessage(content="""
@@ -56,7 +62,6 @@ class Assistant():
             extra_prompt_messages=[custom_system_message],
         )
 
-        llm = ChatOpenAI()
 
         memory = ConversationBufferMemory(
             llm=llm,
