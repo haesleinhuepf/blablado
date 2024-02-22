@@ -7,10 +7,13 @@ class Assistant():
     instructions, either as string or as input from a microphone. The Assistant can then execute the given command
     by using the tools. Tools are callable functions that can be registered with the assistant.
     """
-    def __init__(self, temperature=0.01, tools=[], verbose=False, has_voice=False, model="gpt-3.5-turbo-0613"):
+    def __init__(self, temperature=0.01, tools=[], verbose=False, voice=None, model="gpt-3.5-turbo-0613"):
         self._tools = tools
-        self._has_voice = has_voice
-        self._voice = "nova"
+        if voice == True:
+            voice = "nova"
+        if voice == False:
+            voice = None
+        self._voice = voice
         self._verbose = verbose
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
@@ -41,12 +44,7 @@ class Assistant():
         import os
 
         # Assuming you have a language model and tools
-        if 'gpt' not in self._model:
-            llm = ChatOpenAI(openai_api_key=os.environ.get('BLABLADOR_API_KEY'),
-                             openai_api_base='https://helmholtz-blablador.fz-juelich.de:8000/v1',
-                             model=self._model)
-        else:
-            llm = ChatOpenAI(temperature=self._temperature, model=self._model)
+        llm = ChatOpenAI(temperature=self._temperature, model=self._model)
 
         # Create a custom system message
         custom_system_message = SystemMessage(content="""
@@ -89,9 +87,9 @@ class Assistant():
 
     def change_voice(self, voice:str):
         """
-        Change the voice used for speaking out. Voice must be one of "alloy", "echo", "fable", "onyx", "nova", "shimmer".
+        Change the voice used for speaking out. Voice must be one of "alloy", "echo", "fable", "onyx", "nova", "shimmer", "google", "silent".
         """
-        self._voice = voice
+        self._voice = voice if voice != "silent" else None
 
     def listen(self, until_bye_bye=False):
         """
@@ -140,7 +138,7 @@ This is your task:
         result = self._agent.invoke({"input": prompt})['output']
 
         print(result)
-        if self._has_voice:
+        if self._voice is not None:
             speak_out(result, voice=self._voice)
 
     def register_tool(self, func):
