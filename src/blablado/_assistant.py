@@ -176,13 +176,13 @@ This is your task:
         self._microphone_timeout = timeout
 
     @property
-    def has_voice(self):
-        return self._has_voice
+    def voice(self):
+        return self._voice
 
-    @has_voice.setter
-    def has_voice(self, has_voice:bool):
+    @voice.setter
+    def voice(self, voice:str):
         """
-        Turn on/off voice output
+        Switch to a different voice. Voice must be one of "alloy", "echo", "fable", "onyx", "nova", "shimmer", "google", "silent".
         """
-        self._has_voice = has_voice
+        self._voice = voice
 
