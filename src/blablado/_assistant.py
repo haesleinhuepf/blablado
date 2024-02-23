@@ -9,11 +9,7 @@ class Assistant():
     """
     def __init__(self, temperature=0.01, tools=[], verbose=False, voice=None, model="gpt-3.5-turbo-0613"):
         self._tools = tools
-        if voice == True:
-            voice = "nova"
-        if voice == False:
-            voice = None
-        self._voice = voice
+        self.voice = voice
         self._verbose = verbose
         self._microphone_index = None
         self._microphone_timeout = 10 # seconds
@@ -48,7 +44,7 @@ class Assistant():
 
         # Create a custom system message
         custom_system_message = SystemMessage(content="""
-                Answer the human's questions below and keep your answers short.
+                Answer the human's questions below and keep your answers as short as possible.
                 Be honest. Never lie. 
                 Only say you did something, if a function/tool has been called that can actually do the task you were asked for.
                 """)
@@ -114,6 +110,10 @@ class Assistant():
 
             if not until_bye_bye:
                 return
+
+    def discuss(self):
+        """Have a continuous discussion with the assistant until we say bye bye."""
+        return self.listen(until_bye_bye=True)
 
     def do(self, prompt: str = None):
         from ._speak import speak_out
@@ -182,5 +182,9 @@ This is your task:
         """
         Switch to a different voice. Voice must be one of "alloy", "echo", "fable", "onyx", "nova", "shimmer", "google", "silent".
         """
+        if voice == True:
+            voice = "nova"
+        if voice == False:
+            voice = None
         self._voice = voice
 
