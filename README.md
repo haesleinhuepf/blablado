@@ -104,6 +104,15 @@ mamba install ffmpeg
 
 If you encounter any problems or want to provide feedback or suggestions, please create a thread on [image.sc](https://image.sc) along with a detailed description and tag [@haesleinhuepf].
 
+### PyAudio on Mac (ARM) 
+
+In case you feel the installation of PyAudio may cause issues, you may find [this](https://stackoverflow.com/questions/68251169/unable-to-install-pyaudio-on-m1-mac-portaudio-already-installed) useful:
+```bash
+brew install portaudio
+python -m pip install --global-option='build_ext' --global-option='-I/opt/homebrew/Cellar/portaudio/19.7.0/include' --global-option='-L/opt/homebrew/Cellar/portaudio/19.7.0/lib' pyaudio
+```
+
+
 ## Acknowledgements
 
 Parts of the code reused here were originally written by [kevinyamauchi](https://github.com/kevinyamauchi) for the [bia-bob](https://github.com/haesleinhuepf/bia-bob) project.
