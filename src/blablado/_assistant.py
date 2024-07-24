@@ -139,7 +139,11 @@ class Assistant():
 
         result = self.tell(prompt)
 
-        print(result)
+        if is_notebook():
+            from IPython.display import display, Markdown
+            display(Markdown(result))
+        else:
+            print(result)
         if self._voice is not None:
             speak_out(result, voice=self._voice)
 
@@ -205,3 +209,21 @@ This is your task:
             voice = None
         self._voice = voice
 
+def is_notebook() -> bool:
+    """Returns true if the code is currently executed in a Jupyter notebook."""
+    # adapted from: https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
+    try:
+        from IPython.core.getipython import get_ipython
+
+        try:
+            shell = get_ipython().__class__.__name__
+            if shell == 'ZMQInteractiveShell':
+                return True  # Jupyter notebook or qtconsole
+            elif shell == 'TerminalInteractiveShell':
+                return False  # Terminal running IPython
+            else:
+                return False  # Other type (?)
+        except NameError:
+            return False  # Probably standard Python interpreter
+    except:
+        return False # importing IPython failed
