@@ -7,7 +7,7 @@ class Assistant():
     instructions, either as string or as input from a microphone. The Assistant can then execute the given command
     by using the tools. Tools are callable functions that can be registered with the assistant.
     """
-    def __init__(self, temperature=0.01, tools=[], verbose=False, voice=None, model="gpt-3.5-turbo-0613"):
+    def __init__(self, temperature=0.01, tools=[], verbose=False, voice=None, model="gpt-3.5-turbo-0613", base_url:str=None, api_key:str=None):
         self._tools = tools
         self.voice = voice
         self._verbose = verbose
@@ -15,6 +15,10 @@ class Assistant():
         self._microphone_timeout = 10 # seconds
         self._model = model
         self._agent = None
+        if base_url == 'ollama':
+            base_url = 'http://localhost:11434/v1'
+        self._base_url = base_url
+        self._api_key = api_key
 
         if self._verbose:
             print("Initializing assistant...")
@@ -40,7 +44,15 @@ class Assistant():
         import os
 
         # Assuming you have a language model and tools
-        llm = ChatOpenAI(temperature=self._temperature, model=self._model)
+        #llm = ChatOpenAI(temperature=self._temperature, model=self._model)
+        if self._base_url is not None:
+            llm = ChatOpenAI(temperature=self._temperature,
+                             openai_api_key = self._api_key,
+                             openai_api_base = self._base_url,
+                             model = self._model
+                             )
+        else:
+            llm = ChatOpenAI(temperature=self._temperature, model=self._model)
 
         # Create a custom system message
         custom_system_message = SystemMessage(content="""
@@ -75,6 +87,7 @@ class Assistant():
             memory=memory,
             verbose=self._verbose,
             return_intermediate_steps=False,
+
         )
 
     def list_tools(self):
@@ -117,7 +130,6 @@ class Assistant():
 
     def do(self, prompt: str = None):
         from ._speak import speak_out
-        from datetime import datetime
 
         if self._agent is None:
             self._initialize_agent()
@@ -125,6 +137,14 @@ class Assistant():
         if self._verbose:
             print("Tools:", len(self._tools))
 
+        result = self.tell(prompt)
+
+        print(result)
+        if self._voice is not None:
+            speak_out(result, voice=self._voice)
+
+    def tell(self, prompt:str = None):
+        from datetime import datetime
         now = datetime.now()
 
         prompt = f"""
@@ -135,11 +155,8 @@ This is your task:
 {prompt}
 """
 
-        result = self._agent.invoke({"input": prompt})['output']
+        return self._agent.invoke({"input": prompt})['output']
 
-        print(result)
-        if self._voice is not None:
-            speak_out(result, voice=self._voice)
 
     def register_tool(self, func):
         """
