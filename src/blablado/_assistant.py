@@ -7,7 +7,7 @@ class Assistant():
     instructions, either as string or as input from a microphone. The Assistant can then execute the given command
     by using the tools. Tools are callable functions that can be registered with the assistant.
     """
-    def __init__(self, temperature=0.01, tools=[], verbose=False, voice=None, model="gpt-3.5-turbo-0613", base_url:str=None, api_key:str=None):
+    def __init__(self, temperature=0.01, tools=[], verbose=False, voice=None, model="gpt-4o-2024-05-13", base_url:str=None, api_key:str=None):
         self._tools = tools
         self.voice = voice
         self._verbose = verbose
