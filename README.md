@@ -41,7 +41,13 @@ I have successfully booked room A03.21 for Robert from 3 to 4 pm tomorrow.
 
 ## Usage: Microphone
 
-You can also use it via microphone ([see example notebook](https://github.com/haesleinhuepf/blablado/blob/main/demo/audio_demo.ipynb)). Therfore, it is recommended to print out the list of available microphones like this:
+You can also use it via microphone ([see example notebook](https://github.com/haesleinhuepf/blablado/blob/main/demo/audio_demo.ipynb)). You need to install some more library before this works:
+
+```
+pip install SpeechRecognition pydub gTTS PyAudio
+```
+
+Therefore, it is recommended to print out the list of available microphones like this:
 
 ```python
 from blablado import list_microphones
