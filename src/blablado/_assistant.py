@@ -131,12 +131,6 @@ class Assistant():
     def do(self, prompt: str = None):
         from ._speak import speak_out
 
-        if self._agent is None:
-            self._initialize_agent()
-
-        if self._verbose:
-            print("Tools:", len(self._tools))
-
         result = self.tell(prompt)
 
         if is_notebook():
@@ -151,6 +145,12 @@ class Assistant():
         from datetime import datetime
         now = datetime.now()
 
+        if self._agent is None:
+            self._initialize_agent()
+
+        if self._verbose:
+            print("Tools:", len(self._tools))
+            
         prompt = f"""
 Here are some general information, no need to mention it unless asked for it:
 * The current date and time are {now}.
