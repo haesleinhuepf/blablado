@@ -150,7 +150,7 @@ class Assistant():
 
         if self._verbose:
             print("Tools:", len(self._tools))
-            
+
         prompt = f"""
 Here are some general information, no need to mention it unless asked for it:
 * The current date and time are {now}.
