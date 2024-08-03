@@ -87,7 +87,7 @@ class Assistant():
             memory=memory,
             verbose=self._verbose,
             return_intermediate_steps=False,
-
+            handle_parsing_errors=True
         )
 
     def list_tools(self):
