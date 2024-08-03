@@ -35,8 +35,9 @@ class Assistant():
         reinititalize the agent.
         """
         from langchain_openai import ChatOpenAI
+        from langchain_anthropic import ChatAnthropic
         from langchain.agents import create_openai_functions_agent
-        from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
+        #from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
         from langchain.prompts import MessagesPlaceholder
         from langchain_core.messages import SystemMessage
         from langchain.memory import ConversationBufferMemory
@@ -45,12 +46,16 @@ class Assistant():
 
         # Assuming you have a language model and tools
         #llm = ChatOpenAI(temperature=self._temperature, model=self._model)
-        if self._base_url is not None:
+        if self._base_url is not None: # ollama, blablador
             llm = ChatOpenAI(temperature=self._temperature,
                              openai_api_key = self._api_key,
                              openai_api_base = self._base_url,
                              model = self._model
                              )
+        elif self._model.startswith("claude"): # anthropic
+            llm = ChatAnthropic(temperature=self._temperature,
+                                anthropic_api_key=self._api_key,
+                                model=self._model)
         else:
             llm = ChatOpenAI(temperature=self._temperature, model=self._model)
 
@@ -62,12 +67,11 @@ class Assistant():
                 """)
 
         # Create the agent
-        self._agent = OpenAIMultiFunctionsAgent.from_llm_and_tools(
-            llm,
-            self._tools,
-            extra_prompt_messages=[custom_system_message],
-        )
-
+        #self._agent = OpenAIMultiFunctionsAgent.from_llm_and_tools(
+        #    llm,
+        #    self._tools,
+        #    extra_prompt_messages=[custom_system_message],
+        #)
 
         memory = ConversationBufferMemory(
             llm=llm,
@@ -78,6 +82,7 @@ class Assistant():
             system_message=custom_system_message,
             extra_prompt_messages=[MessagesPlaceholder(variable_name="memory")],
         )
+        print("prompt type", type(prompt))
 
         agent = create_openai_functions_agent(llm=llm, tools=self._tools, prompt=prompt)
 
