@@ -15,6 +15,8 @@ class Assistant():
         self._microphone_timeout = 10 # seconds
         self._model = model
         self._agent = None
+        self._history = []
+
         if base_url == 'ollama':
             base_url = 'http://localhost:11434/v1'
         self._base_url = base_url
@@ -36,8 +38,10 @@ class Assistant():
         """
         from langchain_openai import ChatOpenAI
         from langchain_anthropic import ChatAnthropic
+        #from langchain_anthropic import ChatAnthropicTools
+        from langchain_core.prompts import ChatPromptTemplate
         from langchain.agents import create_openai_functions_agent
-        #from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
+        from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFunctionsAgent
         from langchain.prompts import MessagesPlaceholder
         from langchain_core.messages import SystemMessage
         from langchain.memory import ConversationBufferMemory
@@ -53,9 +57,10 @@ class Assistant():
                              model = self._model
                              )
         elif self._model.startswith("claude"): # anthropic
-            llm = ChatAnthropic(temperature=self._temperature,
-                                anthropic_api_key=self._api_key,
-                                model=self._model)
+            #llm = ChatAnthropic(temperature=self._temperature,
+            #                    anthropic_api_key=self._api_key,
+            #                    model=self._model)
+            llm = ChatAnthropic(model=self._model)
         else:
             llm = ChatOpenAI(temperature=self._temperature, model=self._model)
 
@@ -66,13 +71,10 @@ class Assistant():
                 Only say you did something, if a function/tool has been called that can actually do the task you were asked for.
                 """)
 
-        # Create the agent
-        #self._agent = OpenAIMultiFunctionsAgent.from_llm_and_tools(
-        #    llm,
-        #    self._tools,
-        #    extra_prompt_messages=[custom_system_message],
-        #)
+        print("Using tools", list([t.name for t in self._tools]))
+        llm.bind_tools(tools=self._tools, tool_choice="any")
 
+        """
         memory = ConversationBufferMemory(
             llm=llm,
             memory_key="memory",
@@ -82,18 +84,37 @@ class Assistant():
             system_message=custom_system_message,
             extra_prompt_messages=[MessagesPlaceholder(variable_name="memory")],
         )
+        """
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    custom_system_message.content,
+                ),
+
+            ] +
+            self._history +
+            [
+                ("human", "{input}"),
+            ]
+        )
         print("prompt type", type(prompt))
 
+        self._agent = prompt | llm
+
+        """
         agent = create_openai_functions_agent(llm=llm, tools=self._tools, prompt=prompt)
+
 
         self._agent = AgentExecutor(
             agent=agent,
             tools=self._tools,
-            memory=memory,
+            #memory=memory,
             verbose=self._verbose,
             return_intermediate_steps=False,
-
         )
+        """
 
     def list_tools(self):
         """Lists all available tools"""
@@ -136,8 +157,8 @@ class Assistant():
     def do(self, prompt: str = None):
         from ._speak import speak_out
 
-        if self._agent is None:
-            self._initialize_agent()
+        #if self._agent is None:
+        self._initialize_agent()
 
         if self._verbose:
             print("Tools:", len(self._tools))
@@ -162,10 +183,19 @@ Here are some general information, no need to mention it unless asked for it:
 
 This is your task:
 {prompt}
+
+You MUST call a tool of your choice to answer this prompt.
 """
+        response = self._agent.invoke({"input": prompt})
+        result = response.content #['output']
 
-        return self._agent.invoke({"input": prompt})['output']
+        print("TC", response.tool_calls)
 
+        self._history = self._history + [
+            ("human", prompt),
+            ("ai", result),
+        ]
+        return result
 
     def register_tool(self, func):
         """
